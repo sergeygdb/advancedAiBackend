@@ -6,6 +6,7 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { chatRouter } from './controller/chat.routes';
 import { userRouter } from './controller/user.routes';
+import { messageRouter } from './controller/message.routes';
 
 const app = express();
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(bodyParser.json());
 
 app.use('/chat', chatRouter);
 app.use('/user', userRouter);
+app.use('/message', messageRouter);
 
 app.get('/status', (req, res) => {
     res.json({ message: 'Duolingo-ish API is running...' });

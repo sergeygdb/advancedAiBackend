@@ -19,23 +19,27 @@ model User {
 }
 
 model Chat {
-  id       Int       @id @default(autoincrement())
-  user     User?     @relation("UserChats", fields: [userId], references: [id])
-  userId   Int?
-  messages Message[] @relation("ChatMessages")
+  id        Int       @id @default(autoincrement())
+  name      String    @default("Chat")
+  user      User?     @relation("UserChats", fields: [userId], references: [id])
+  userId    Int?
+  messages  Message[] @relation("ChatMessages")
+  createdAt DateTime  @default(now())
 }
 
 model Message {
-  id      Int    @id @default(autoincrement())
-  content String
-  prompt  String
-  role    String
-  chat    Chat?  @relation("ChatMessages", fields: [chatId], references: [id])
-  chatId  Int?
+  id        Int      @id @default(autoincrement())
+  content   String
+  prompt    String
+  role      String
+  chat      Chat?    @relation("ChatMessages", fields: [chatId], references: [id])
+  chatId    Int?
+  createdAt DateTime @default(now())
 }
 
 model VoiceChat {
   id       Int            @id @default(autoincrement())
+  name     String         @default("VoiceChat")
   user     User?          @relation("UserVoiceChats", fields: [userId], references: [id])
   userId   Int?
   messages VoiceMessage[] @relation("VoiceChatMessages")

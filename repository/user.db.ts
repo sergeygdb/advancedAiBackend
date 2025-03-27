@@ -37,8 +37,10 @@ const getUserByUsername = async ({ username }: { username: string }): Promise<Us
     }
 };
 
-export default {
+const userDb = {
     getAllUsers,
     getUserById,
     getUserByUsername,
 };
+
+export default userDb;

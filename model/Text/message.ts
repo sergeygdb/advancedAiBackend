@@ -4,16 +4,20 @@ export class Message {
     private id?: number;
     private content?: String
     private role?: String
-    
+    readonly createdAt: Date = new Date();
+
     constructor(message: { id?: number; content: string; role: string;}) {
         this.id = message.id;
         this.content = message.content;
         this.role = message.role;
-
     }
 
     setId(id: number) {
         this.id = id;
+    }
+
+    getCreatedAt(): Date {
+        return this.createdAt;
     }
 
     getId(): number | undefined {

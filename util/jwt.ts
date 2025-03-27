@@ -1,4 +1,3 @@
-import { User } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { UserInput } from '../types';
 

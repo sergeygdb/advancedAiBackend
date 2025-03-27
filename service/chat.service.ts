@@ -1,17 +1,25 @@
 
 import chatDb from '../repository/chat.db';
 
-export const createChatResponse = async ({ prompt }: { prompt: string }): Promise<string> => {
-  const chat = await chatDb.createChatResponse({ prompt });
+const createChat = async ({username} : {username : string}, {name} : {name? : string}) => {
+  try {
+    const chat = await chatDb.createChat({username}, {name});
 
-  if (!chat) {
-    throw new Error('Chat response not found.');
+    if (!chat) {
+      throw new Error('Couldn\'t create chat.');
+    }
+
+    return chat;
+
   }
-
-
-  return chat;
+  catch (error) {
+    console.error(error);
+    throw new Error('Couldn\'t create chat.');
+  }
 };
 
-export default {
-    createChatResponse
-}
+const chatService = {
+  createChat,
+};
+
+export default chatService;

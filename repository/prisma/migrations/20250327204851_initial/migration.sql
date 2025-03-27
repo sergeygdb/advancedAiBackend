@@ -13,6 +13,7 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Chat" (
     "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL DEFAULT 'Chat',
     "userId" INTEGER,
 
     CONSTRAINT "Chat_pkey" PRIMARY KEY ("id")
@@ -25,6 +26,7 @@ CREATE TABLE "Message" (
     "prompt" TEXT NOT NULL,
     "role" TEXT NOT NULL,
     "chatId" INTEGER,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
@@ -32,6 +34,7 @@ CREATE TABLE "Message" (
 -- CreateTable
 CREATE TABLE "VoiceChat" (
     "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL DEFAULT 'VoiceChat',
     "userId" INTEGER,
 
     CONSTRAINT "VoiceChat_pkey" PRIMARY KEY ("id")

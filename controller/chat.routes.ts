@@ -1,16 +1,13 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { createChatResponse } from '../service/chat.service';
+import  chatService  from '../service/chat.service';
 
 const chatRouter = express.Router();
 
-chatRouter.post('/ask',
+chatRouter.post('/create',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { prompt } = req.body;
-
-         
-
-            const result = await createChatResponse({ prompt });
+            const { username, name } = req.body;
+            const result = await chatService.createChat({ username }, { name });
             res.status(200).json({ response: result });
         } catch (error) {
             next(error);
@@ -18,3 +15,4 @@ chatRouter.post('/ask',
     });
 
 export { chatRouter };
+

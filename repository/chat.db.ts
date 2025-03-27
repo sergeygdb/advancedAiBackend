@@ -1,41 +1,54 @@
-import { Chat } from '../model/chat';
-import database from '../util/database';
 import { OpenAI } from 'openai';
+import { Chat } from '../model/Text/chat';
+import database from '../util/database';
+import userDb from './user.db';
+import { Message } from '../model/Text/message';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
-const maxWords = 3;
+const maxWords = 300;
 
 const systemMessage = {
   role: 'system',
   content: `You are a helpful assistant who answers with only maximum ${maxWords} words. If you can't make a response with max ${maxWords} words, response with "ERROR: Response limit exceeded!".`,
 };
 
-const createChatResponse = async ({ prompt }: { prompt: string }): Promise<string> => {
-    let chatHistory: any[] = [];
-    chatHistory.unshift(systemMessage);
-  chatHistory.push({ role: 'user', content: prompt });
-
-  const chatCompletion = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: chatHistory,
-  });
-
-  const responseMessage = chatCompletion.choices[0].message.content ?? 'No response';
-
-  chatHistory.push({ role: 'assistant', content: responseMessage });
+const createChat = async ({username} : {username: string}, {name} : {name? : string }): Promise<Chat> => {
     
-    const messagePrisma = await database.message.create({
-        data: {
-            prompt: prompt,
-            role: chatHistory[chatHistory.length - 1].role,
-            content: chatHistory[chatHistory.length - 1].content,
-        },
-    });
+    let user;
 
-  return responseMessage;
+    try {
+        user = await userDb.getUserByUsername({ username });
+        if (!user) {
+            throw new Error('User not found.');
+        }
+    }
+    catch (error) {
+        console.error(error);
+        throw new Error('User not found.');
+    }
+    
+    try {
+        const chatPrisma = await database.chat.create({
+            data: {
+                name: name,
+                user: {
+                    connect: {
+                        id: user.getId(),
+                    },
+                },
+            },
+        });
+
+        return Chat.from(chatPrisma);
+    }
+    catch (error) {
+        console.error(error);
+        throw new Error('Coudln\'t create chat for user.');
+    }
+
 };
 
 const getChatByUsername = async ({ username }: { username: string }): Promise<Chat | null> => {
@@ -58,8 +71,44 @@ const getChatByUsername = async ({ username }: { username: string }): Promise<Ch
     }
 };
 
+const getChatById = async ({ id }: { id: number }): Promise<Chat | null> => {
+    try {
+        const chatPrisma = await database.chat.findFirst({
+            where: {
+                id: id,
+            },
+            include: {
+                messages: true,
+            },
+        });
+
+        return chatPrisma ? Chat.from(chatPrisma) : null;
+    }
+    catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+};
+
+const getMessagesByChatId = async ({ chatId }: { chatId: number }): Promise<Message[]> => {
+    try {
+        const messagesPrisma = await database.message.findMany({
+            where: {
+                chatId: chatId,
+            },
+        });
+
+        return messagesPrisma.map(message => Message.from(message));
+    }
+    catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+};
 
 export default {
     getChatByUsername,
-    createChatResponse
+    createChat,
+    getChatById,
+    getMessagesByChatId,
 };
