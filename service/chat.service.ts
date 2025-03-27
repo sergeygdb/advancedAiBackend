@@ -1,6 +1,4 @@
-import { OpenAI } from 'openai';
 
-import dotenv from 'dotenv';
 import chatDb from '../repository/chat.db';
 
 export const createChatResponse = async ({ prompt }: { prompt: string }): Promise<string> => {

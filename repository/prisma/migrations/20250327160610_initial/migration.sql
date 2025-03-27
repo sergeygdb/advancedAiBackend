@@ -22,6 +22,7 @@ CREATE TABLE "Chat" (
 CREATE TABLE "Message" (
     "id" SERIAL NOT NULL,
     "content" TEXT NOT NULL,
+    "prompt" TEXT NOT NULL,
     "role" TEXT NOT NULL,
     "chatId" INTEGER,
 

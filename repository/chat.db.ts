@@ -6,9 +6,11 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
+const maxWords = 3;
+
 const systemMessage = {
   role: 'system',
-  content: 'You are a helpful assistant who answers with only maximum 3 words',
+  content: `You are a helpful assistant who answers with only maximum ${maxWords} words. If you can't make a response with max ${maxWords} words, response with "ERROR: Response limit exceeded!".`,
 };
 
 const createChatResponse = async ({ prompt }: { prompt: string }): Promise<string> => {
@@ -27,6 +29,7 @@ const createChatResponse = async ({ prompt }: { prompt: string }): Promise<strin
     
     const messagePrisma = await database.message.create({
         data: {
+            prompt: prompt,
             role: chatHistory[chatHistory.length - 1].role,
             content: chatHistory[chatHistory.length - 1].content,
         },
