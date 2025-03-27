@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 // app.use('/schedules', scheduleRouter);
 
 app.use('/chat', chatRouter);
-app.use('user', userRouter);
+app.use('/user', userRouter);
 
 app.get('/status', (req, res) => {
     res.json({ message: 'Duolingo-ish API is running...' });

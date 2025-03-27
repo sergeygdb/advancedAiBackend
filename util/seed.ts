@@ -1,6 +1,5 @@
-// Execute: npx ts-node util/seed.ts
-
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -46,15 +45,15 @@ const main = async () => {
     //     },
     // });
 
-    // const admin = await prisma.user.create({
-    //     data: {
-    //         username: 'admin',
-    //         password: 'admin123',
-    //         firstName: 'admin',
-    //         lastName: '',
-    //         email: 'administration@ucll.be',
-    //     },
-    // });
+    const admin = await prisma.user.create({
+        data: {
+            username: 'admin',
+            password: await bcrypt.hash('admin', 12),
+            firstName: 'admin',
+            lastName: 'admin',
+            email: 'administration@ucll.be',
+        },
+    });
 
     // const lecturerJP = await prisma.lecturer.create({
     //     data: {
