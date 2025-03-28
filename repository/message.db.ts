@@ -11,7 +11,7 @@ const openai = new OpenAI({
   const systemMessage = {
     role: 'system',
     // content: `You are a helpful assistant who answers!`,
-    content: `You are a helpful assistant who answers with only maximum ${maxWords} words. If you can't make a response with max ${maxWords} words, response with "ERROR: Response limit exceeded!". If you can't make a response but it's not because of the word limit, response with "ERROR: {Describe reason here}".`,
+    content: `You are a helpful assistant who answers with only maximum ${maxWords} words. At least try to make a response of ${maxWords}, even if it leads to a lower quality answer. If you absolutely can't make a response with max ${maxWords} words, response with "ERROR: Response limit exceeded!". If you can't make a response but it's not because of the word limit, response with "ERROR: {Describe reason here}". NEVER EVER go above the word limit.`,
   };
 
   const askMessage = async (
