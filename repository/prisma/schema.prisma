@@ -29,8 +29,8 @@ model Chat {
 
 model Message {
   id        Int      @id @default(autoincrement())
-  content   String
   prompt    String
+  content   String
   role      String
   chat      Chat?    @relation("ChatMessages", fields: [chatId], references: [id])
   chatId    Int?

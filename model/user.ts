@@ -1,12 +1,12 @@
 import { User as UserPrisma } from '@prisma/client';
 
 export class User {
-    private id?: number;
-    private username: string;
-    private firstName: string;
-    private lastName: string;
-    private email: string;
-    private password: string;
+    readonly id?: number;
+    readonly username: string;
+    readonly firstName: string;
+    readonly lastName: string;
+    readonly email: string;
+    readonly password: string;
 
     constructor(user: {
         id?: number;

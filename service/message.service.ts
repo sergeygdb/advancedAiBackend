@@ -1,7 +1,13 @@
 
+import { UnauthorizedError } from 'express-jwt/dist/errors/UnauthorizedError';
 import messageDb from '../repository/message.db';
 
-export const askMessage = async ({ prompt }: { prompt: string }, {chatId} : { chatId?:number}): Promise<string> => {
+export const askMessage = async ({ prompt }: { prompt: string }, {chatId} : { chatId?:number}, { username } : { username : string }): Promise<string> => {
+  
+  // if (!username) {
+  //   throw new UnauthorizedError("credentials_required", { message: "User not authenticated!" });
+  // }
+  
   const chat = await messageDb.askMessage({ prompt }, { chat: chatId });
 
   if (!chat) {

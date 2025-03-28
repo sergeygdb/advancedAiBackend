@@ -4,6 +4,17 @@ import { UserInput } from '../types/index';
 
 const userRouter = express.Router();
 
+// userRouter.post('/register', async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const userInput = <UserInput>req.body;
+//         const response = await userService.register(userInput);
+//         res.status(200).json(response);
+//     }
+//     catch (error) {
+//         next(error);
+//     }
+// });
+
 userRouter.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userInput = <UserInput>req.body;

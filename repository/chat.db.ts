@@ -8,7 +8,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
-const maxWords = 300;
+const maxWords = 6;
 
 const systemMessage = {
   role: 'system',
