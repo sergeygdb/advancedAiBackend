@@ -1,6 +1,6 @@
 
 import { UnauthorizedError } from 'express-jwt/dist/errors/UnauthorizedError';
-import messageDb from '../repository/message.db';
+import messageDb from '../../repository/Text/message.db';
 
 export const askMessage = async ({ prompt }: { prompt: string }, {chatId} : { chatId?:number}, { username } : { username : string }): Promise<string> => {
   

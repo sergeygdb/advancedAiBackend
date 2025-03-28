@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import messageService from '../service/message.service';
+import messageService from '../service/text/message.service';
 
 const messageRouter = express.Router();
 

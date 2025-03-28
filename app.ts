@@ -8,6 +8,8 @@ import { chatRouter } from './controller/chat.routes';
 import { userRouter } from './controller/user.routes';
 import { messageRouter } from './controller/message.routes';
 import { expressjwt } from 'express-jwt';
+import { voiceChatRouter } from './controller/voiceChat.routes';
+import { voiceMessageRouter } from './controller/voiceMessage.routes';
 
 const app = express();
 dotenv.config();
@@ -26,13 +28,19 @@ app.use(
         '/user/login', 
         '/user/register', 
         '/status',
-        '/message/ask',
         '/chat/create',
+        '/message/ask',
+        '/voiceChat/create',
+        '/voiceMessage/ask',
     ] }));
 
-app.use('/chat', chatRouter);
 app.use('/user', userRouter);
+
+app.use('/chat', chatRouter);
 app.use('/message', messageRouter);
+
+app.use('/voiceChat', voiceChatRouter);
+app.use('/voiceMessage', voiceMessageRouter);
 
 app.get('/status', (req, res) => {
     res.json({ message: 'Duolingo-ish API is running...' });

@@ -1,5 +1,5 @@
 
-import chatDb from '../repository/chat.db';
+import chatDb from '../../repository/Text/chat.db';
 
 const createChat = async ({username} : {username : string}, {name} : {name? : string}) => {
   try {

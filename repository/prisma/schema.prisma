@@ -16,6 +16,7 @@ model User {
   password  String
   chats     Chat[]      @relation("UserChats")
   VoiceChat VoiceChat[] @relation("UserVoiceChats")
+  createdAt DateTime    @default(now())
 }
 
 model Chat {
@@ -38,17 +39,40 @@ model Message {
 }
 
 model VoiceChat {
-  id       Int            @id @default(autoincrement())
-  name     String         @default("VoiceChat")
-  user     User?          @relation("UserVoiceChats", fields: [userId], references: [id])
-  userId   Int?
-  messages VoiceMessage[] @relation("VoiceChatMessages")
+  id        Int            @id @default(autoincrement())
+  name      String         @default("VoiceChat")
+  user      User?          @relation("UserVoiceChats", fields: [userId], references: [id])
+  userId    Int?
+  messages  VoiceMessage[] @relation("VoiceChatMessages")
+  createdAt DateTime       @default(now())
 }
 
 model VoiceMessage {
-  id      Int        @id @default(autoincrement())
-  content String
-  role    String
-  chat    VoiceChat? @relation("VoiceChatMessages", fields: [chatId], references: [id])
-  chatId  Int?
+  id         Int          @id @default(autoincrement())
+  prompt     String
+  content    String
+  role       String
+  chat       VoiceChat?   @relation("VoiceChatMessages", fields: [chatId], references: [id])
+  chatId     Int?
+  correction Correction[] @relation("VoiceMessageCorrection")
+  createdAt  DateTime     @default(now())
+}
+
+model Correction {
+  id             Int          @id @default(autoincrement())
+  description    String
+  mistakes       Mistake[]    @relation("VoiceMessageCorrectionMistakes")
+  voiceMessage   VoiceMessage @relation("VoiceMessageCorrection", fields: [voiceMessageId], references: [id])
+  voiceMessageId Int
+  createdAt      DateTime     @default(now())
+}
+
+model Mistake {
+  id              Int        @id @default(autoincrement())
+  problematicWord String
+  explanation     String
+  correction      Correction @relation("VoiceMessageCorrectionMistakes", fields: [correctionId], references: [id])
+  correctionId    Int
+  brokeSubject    Boolean
+  createdAt       DateTime   @default(now())
 }

@@ -1,5 +1,5 @@
 import { OpenAI } from 'openai';
-import database from '../util/database';
+import database from '../../util/database';
 import chatDb from './chat.db';
 
 const openai = new OpenAI({
@@ -10,7 +10,6 @@ const openai = new OpenAI({
   
   const systemMessage = {
     role: 'system',
-    // content: `You are a helpful assistant who answers!`,
     content: `You are a helpful assistant who answers with only maximum ${maxWords} words. At least try to make a response of ${maxWords}, even if it leads to a lower quality answer. If you absolutely can't make a response with max ${maxWords} words, response with "ERROR: Response limit exceeded!". If you can't make a response but it's not because of the word limit, response with "ERROR: {Describe reason here}". NEVER EVER go above the word limit.`,
   };
 
@@ -35,7 +34,7 @@ const openai = new OpenAI({
         // Add previous messages to the chat history
         chatMessages.forEach((message) => {
             chatHistory.push({ role: "user", content: message.prompt });
-            chatHistory.push({ role: message.role, content: message.content });
+            chatHistory.push({ role: message.getRole(), content: message.getContent() });
         });
     }
 
@@ -53,7 +52,7 @@ const openai = new OpenAI({
     const responseMessage = chatCompletion.choices[0].message.content ?? 'No response';
 
     // Add the assistant's response to the chat history
-    chatHistory.push({ role: 'assistant', content: responseMessage });
+    // chatHistory.push({ role: 'assistant', content: responseMessage });
 
     // Save the message to the database
     const messagePrisma = await database.message.create({

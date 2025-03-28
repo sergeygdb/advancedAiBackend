@@ -1,8 +1,10 @@
 import { OpenAI } from 'openai';
-import { Chat } from '../model/Text/chat';
-import database from '../util/database';
-import userDb from './user.db';
-import { Message } from '../model/Text/message';
+import { Chat } from '../../model/Text/chat';
+import database from '../../util/database';
+import userDb from '../user.db';
+import { Message } from '../../model/Text/message';
+import { VoiceChat } from '../../model/Voice/voicechat';
+import { VoiceMessage } from '../../model/Voice/voiceMessage';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -15,7 +17,7 @@ const systemMessage = {
   content: `You are a helpful assistant who answers with only maximum ${maxWords} words. If you can't make a response with max ${maxWords} words, response with "ERROR: Response limit exceeded!".`,
 };
 
-const createChat = async ({username} : {username: string}, {name} : {name? : string }): Promise<Chat> => {
+const createVoiceChat = async ({username} : {username: string}, {name} : {name? : string }): Promise<VoiceChat> => {
     
     let user;
 
@@ -31,7 +33,7 @@ const createChat = async ({username} : {username: string}, {name} : {name? : str
     }
     
     try {
-        const chatPrisma = await database.chat.create({
+        const voiceChatPrisma = await database.voiceChat.create({
             data: {
                 name: name,
                 user: {
@@ -42,7 +44,7 @@ const createChat = async ({username} : {username: string}, {name} : {name? : str
             },
         });
 
-        return Chat.from(chatPrisma);
+        return VoiceChat.from(voiceChatPrisma);
     }
     catch (error) {
         console.error(error);
@@ -51,9 +53,9 @@ const createChat = async ({username} : {username: string}, {name} : {name? : str
 
 };
 
-const getChatByUsername = async ({ username }: { username: string }): Promise<Chat | null> => {
+const getVoiceChatByUsername = async ({ username }: { username: string }): Promise<VoiceChat | null> => {
     try {
-        const chatPrisma = await database.chat.findFirst({
+        const voiceChatPrisma = await database.voiceChat.findFirst({
             where: {
                 user: {
                     username: username,
@@ -64,16 +66,16 @@ const getChatByUsername = async ({ username }: { username: string }): Promise<Ch
             },
         });
 
-        return chatPrisma ? Chat.from(chatPrisma) : null;
+        return voiceChatPrisma ? VoiceChat.from(voiceChatPrisma) : null;
     } catch (error) {
         console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
 
-const getChatById = async ({ id }: { id: number }): Promise<Chat | null> => {
+const getVoiceChatById = async ({ id }: { id: number }): Promise<VoiceChat | null> => {
     try {
-        const chatPrisma = await database.chat.findFirst({
+        const voiceChatPrisma = await database.voiceChat.findFirst({
             where: {
                 id: id,
             },
@@ -82,7 +84,7 @@ const getChatById = async ({ id }: { id: number }): Promise<Chat | null> => {
             },
         });
 
-        return chatPrisma ? Chat.from(chatPrisma) : null;
+        return voiceChatPrisma ? VoiceChat.from(voiceChatPrisma) : null;
     }
     catch (error) {
         console.error(error);
@@ -90,15 +92,22 @@ const getChatById = async ({ id }: { id: number }): Promise<Chat | null> => {
     }
 };
 
-const getMessagesByChatId = async ({ chatId }: { chatId: number }): Promise<Message[]> => {
+const getVoiceMessagesByVoiceChatId = async ({ chatId }: { chatId: number }): Promise<VoiceMessage[]> => {
     try {
-        const messagesPrisma = await database.message.findMany({
+        const voiceMessagesPrisma = await database.voiceMessage.findMany({
             where: {
                 chatId: chatId,
             },
+            include: {
+                correction: {
+                    include: {
+                        mistakes: true,
+                    },
+                }
+            },
         });
 
-        return messagesPrisma.map(message => Message.from(message));
+        return voiceMessagesPrisma.map(voiceMessage => VoiceMessage.from(voiceMessage));
     }
     catch (error) {
         console.error(error);
@@ -107,8 +116,8 @@ const getMessagesByChatId = async ({ chatId }: { chatId: number }): Promise<Mess
 };
 
 export default {
-    getChatByUsername,
-    createChat,
-    getChatById,
-    getMessagesByChatId,
+    createVoiceChat,
+    getVoiceChatByUsername,
+    getVoiceChatById,
+    getVoiceMessagesByVoiceChatId,
 };
