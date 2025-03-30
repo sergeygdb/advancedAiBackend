@@ -50,17 +50,33 @@ const openai = new OpenAI({
     let chatHistory: any[] = [];
     chatHistory.push(systemMessage);
     
+    // Transcribe the audio with true attempt at correction
+    const audioStreamCorrect = fs.createReadStream(audio);
+    const transcriptionCorrect = await openai.audio.transcriptions.create({
+      model: 'gpt-4o-mini-transcribe',
+      file: audioStreamCorrect,
+      prompt: "Transcribe the recording as accurately as possible, correcting any errors in spelling, grammar, punctuation, and what the user is trying to say."
+    });
+  
+    if (!transcriptionCorrect) {
+      throw new Error('Transcription not found.');
+    }
+
+    console.log("transcriptionCorrect", transcriptionCorrect.text);
+    
     // Transcribe the audio.
     const audioStream = fs.createReadStream(audio);
     const transcription = await openai.audio.transcriptions.create({
       model: 'gpt-4o-mini-transcribe',
       file: audioStream,
-      prompt: "Bonjour, veuillez transcrire chaque mot et erreur exactement comme ils sont prononcés, sans corrections ni ajustements. Merci de capturer chaque détail parlé fidèlement. Exemple : Je vois une chat."
+      prompt: `Transcrit chaque mot et erreur exactement comme ils sont prononcés, sans corrections ni ajustements. Merci de capturer chaque détail parlé fidèlement. Exemple : Je vois une chat. Nous pensons que l'utilisateur dit ${transcriptionCorrect.text}`
     });
   
     if (!transcription) {
       throw new Error('Transcription not found.');
     }
+  
+    console.log("transcription", transcription.text);
   
     let voiceChatResponse;
     if (voiceChatId) {
