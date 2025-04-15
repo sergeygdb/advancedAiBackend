@@ -53,25 +53,24 @@ const createVoiceChat = async ({username} : {username: string}, {name} : {name? 
 
 };
 
-const getVoiceChatByUsername = async ({ username }: { username: string }): Promise<VoiceChat | null> => {
+const getVoiceChatsByUsername = async (username: string ): Promise<VoiceChat[]> => {
     try {
-        const voiceChatPrisma = await database.voiceChat.findFirst({
+        const voiceChatsPrisma = await database.voiceChat.findMany({
             where: {
                 user: {
                     username: username,
                 },
-            },
-            include: {
-                messages: true,
-            },
+            }
         });
 
-        return voiceChatPrisma ? VoiceChat.from(voiceChatPrisma) : null;
+        return voiceChatsPrisma.map((chat) => VoiceChat.from(chat));
     } catch (error) {
         console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
+
+
 
 const getVoiceChatById = async ({ id }: { id: number }): Promise<VoiceChat | null> => {
     try {
@@ -84,6 +83,7 @@ const getVoiceChatById = async ({ id }: { id: number }): Promise<VoiceChat | nul
             },
         });
 
+
         return voiceChatPrisma ? VoiceChat.from(voiceChatPrisma) : null;
     }
     catch (error) {
@@ -92,11 +92,30 @@ const getVoiceChatById = async ({ id }: { id: number }): Promise<VoiceChat | nul
     }
 };
 
-const getVoiceMessagesByVoiceChatId = async ({ chatId }: { chatId: number }): Promise<VoiceMessage[]> => {
+const deleteVoiceMessagesByVoiceChatId = async (id: number): Promise<VoiceChat> => {
+    try {
+        const voiceChatPrisma = await database.voiceChat.delete({
+            where: {
+                id: id
+            }
+        });
+
+        return VoiceChat.from(voiceChatPrisma);
+    }
+    catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+};
+
+
+
+
+const getVoiceMessagesByVoiceChatId = async (chatid: number): Promise<VoiceMessage[]> => {
     try {
         const voiceMessagesPrisma = await database.voiceMessage.findMany({
             where: {
-                chatId: chatId,
+                chatId: chatid,
             },
             include: {
                 correction: {
@@ -117,7 +136,8 @@ const getVoiceMessagesByVoiceChatId = async ({ chatId }: { chatId: number }): Pr
 
 export default {
     createVoiceChat,
-    getVoiceChatByUsername,
+    getVoiceChatsByUsername,
     getVoiceChatById,
     getVoiceMessagesByVoiceChatId,
+    deleteVoiceMessagesByVoiceChatId
 };

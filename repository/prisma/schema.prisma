@@ -22,7 +22,7 @@ model User {
 model Chat {
   id        Int       @id @default(autoincrement())
   name      String    @default("Chat")
-  user      User?     @relation("UserChats", fields: [userId], references: [id])
+  user      User?     @relation("UserChats", fields: [userId], references: [id], onDelete: Cascade)
   userId    Int?
   messages  Message[] @relation("ChatMessages")
   createdAt DateTime  @default(now())
@@ -32,8 +32,7 @@ model Message {
   id        Int      @id @default(autoincrement())
   prompt    String
   content   String
-  role      String
-  chat      Chat?    @relation("ChatMessages", fields: [chatId], references: [id])
+  chat      Chat?    @relation("ChatMessages", fields: [chatId], references: [id], onDelete: Cascade)
   chatId    Int?
   createdAt DateTime @default(now())
 }
@@ -41,7 +40,7 @@ model Message {
 model VoiceChat {
   id        Int            @id @default(autoincrement())
   name      String         @default("VoiceChat")
-  user      User?          @relation("UserVoiceChats", fields: [userId], references: [id])
+  user      User?          @relation("UserVoiceChats", fields: [userId], references: [id], onDelete: Cascade)
   userId    Int?
   messages  VoiceMessage[] @relation("VoiceChatMessages")
   createdAt DateTime       @default(now())
@@ -51,8 +50,7 @@ model VoiceMessage {
   id         Int          @id @default(autoincrement())
   prompt     String
   content    String
-  role       String
-  chat       VoiceChat?   @relation("VoiceChatMessages", fields: [chatId], references: [id])
+  chat       VoiceChat?   @relation("VoiceChatMessages", fields: [chatId], references: [id], onDelete: Cascade)
   chatId     Int?
   correction Correction[] @relation("VoiceMessageCorrection")
   createdAt  DateTime     @default(now())
@@ -62,7 +60,7 @@ model Correction {
   id             Int          @id @default(autoincrement())
   description    String
   mistakes       Mistake[]    @relation("VoiceMessageCorrectionMistakes")
-  voiceMessage   VoiceMessage @relation("VoiceMessageCorrection", fields: [voiceMessageId], references: [id])
+  voiceMessage   VoiceMessage @relation("VoiceMessageCorrection", fields: [voiceMessageId], references: [id], onDelete: Cascade)
   voiceMessageId Int
   createdAt      DateTime     @default(now())
 }
@@ -71,7 +69,7 @@ model Mistake {
   id              Int        @id @default(autoincrement())
   problematicWord String
   explanation     String
-  correction      Correction @relation("VoiceMessageCorrectionMistakes", fields: [correctionId], references: [id])
+  correction      Correction @relation("VoiceMessageCorrectionMistakes", fields: [correctionId], references: [id], onDelete: Cascade)
   correctionId    Int
   brokeSubject    Boolean
   createdAt       DateTime   @default(now())

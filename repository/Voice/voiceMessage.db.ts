@@ -5,6 +5,7 @@ import fs from "fs";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 
+
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY!,
   });
@@ -62,7 +63,7 @@ const openai = new OpenAI({
       throw new Error('Transcription not found.');
     }
 
-    console.log("transcriptionCorrect", transcriptionCorrect.text);
+    console.log("transcriptionCorrect :", transcriptionCorrect.text);
     
     // Transcribe the audio.
     const audioStream = fs.createReadStream(audio);
@@ -76,22 +77,25 @@ const openai = new OpenAI({
       throw new Error('Transcription not found.');
     }
   
-    console.log("transcription", transcription.text);
+    console.log("transcription :", transcription.text);
   
     let voiceChatResponse;
     if (voiceChatId) {
       voiceChatResponse = await voiceChatDb.getVoiceChatById({ id: voiceChatId });
+
       if (!voiceChatResponse) {
         throw new Error('VoiceChat not found.');
       }
     }
-  
+
+
     // Retrieve previous voice messages and push them into chatHistory.
-    const voiceChatMessageHistory = await voiceChatDb.getVoiceMessagesByVoiceChatId({ chatId: voiceChatId });
+    // only retrieve the last 3 -> to save tokens
+    const voiceChatMessageHistory = await voiceChatDb.getVoiceMessagesByVoiceChatId(voiceChatId);
     voiceChatMessageHistory.forEach((message) => {
       chatHistory.push({ role: "user", content: message.prompt });
       chatHistory.push({
-        role: message.getRole(), 
+        role: "assistant", 
         content: message.getContent()
       });
     });
@@ -101,19 +105,20 @@ const openai = new OpenAI({
   
     console.log("chatHistory");
     console.log(chatHistory.map((x) => JSON.stringify(x)));
+
+    const chatHistoryFiltered = chatHistory.slice(0, 1).concat(chatHistory.slice(-6));
+
   
     // Get the API response.
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      messages: chatHistory,
+      messages: chatHistoryFiltered,
     });
   
     if (!response) {
       throw new Error('Response not found.');
     }
   
-    console.log("response", response);
-    console.log("response message", response.choices[0].message.content);
   
     // Extract the JSON string from the response.
     const rawResponseContent = response.choices[0].message.content;
@@ -129,6 +134,9 @@ const openai = new OpenAI({
       throw new Error("Failed to parse JSON from API response: " + err);
     }
 
+    console.log("response message", parsedResponse);
+
+
     // First, extract the followupQuestion from the parsed response.
     const followupQuestion = parsedResponse.followupQuestion;
 
@@ -136,7 +144,6 @@ const openai = new OpenAI({
     const voiceMessagePrisma = await database.voiceMessage.create({
     data: {
         prompt: transcription.text,
-        role: "assistant",
         content: followupQuestion, // saving the follow-up question from the parsed response
         chat: voiceChatId ? { connect: { id: voiceChatId } } : undefined,
     },
@@ -169,10 +176,21 @@ const openai = new OpenAI({
     return parsedResponse;
   
 }
-  
+
+// we can also add a language option for the very first question
+const createFirstMessage = async ( voiceChatId: number): Promise<any> => {
+  await database.voiceMessage.create({
+    data: {
+        prompt: '',
+        content: "De quoi voulez-vous parler ?", // saving the follow-up question from the parsed response
+        chat: voiceChatId ? { connect: { id: voiceChatId } } : undefined,
+    },
+    });
+}
 
 const voiceMessageDb = {
     askVoiceMessage,
+    createFirstMessage
 };
 
 export default voiceMessageDb;

@@ -4,13 +4,11 @@ export class Message {
     readonly id?: number;
     readonly prompt? : String;
     readonly content?: String
-    readonly role?: String
     readonly createdAt: Date = new Date();
 
-    constructor(message: { id?: number; content: string; role: string; prompt : string}) {
+    constructor(message: { id?: number; content: string;  prompt : string}) {
         this.id = message.id;
         this.content = message.content;
-        this.role = message.role;
         this.prompt = message.prompt;
     }
 
@@ -30,16 +28,13 @@ export class Message {
         return this.content;
     }
 
-    getRole(): String | undefined {
-        return this.role;
-    }
+   
 
-    static from({ id, content, role, prompt}: MessagePrisma) {
+    static from({ id, content, prompt}: MessagePrisma) {
         return new Message({
             id,
             prompt,
             content, 
-            role,
         });
     }
 }

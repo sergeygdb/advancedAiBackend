@@ -34,7 +34,7 @@ const openai = new OpenAI({
         // Add previous messages to the chat history
         chatMessages.forEach((message) => {
             chatHistory.push({ role: "user", content: message.prompt });
-            chatHistory.push({ role: message.getRole(), content: message.getContent() });
+            chatHistory.push({ role: "assistant", content: message.getContent() });
         });
     }
 
@@ -58,7 +58,6 @@ const openai = new OpenAI({
     const messagePrisma = await database.message.create({
         data: {
             prompt: prompt,
-            role: "assistant",
             content: responseMessage,
             chat: chat
                 ? { connect: { id: chat } }

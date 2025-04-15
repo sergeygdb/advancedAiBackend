@@ -20,9 +20,10 @@ app.use(bodyParser.json());
 
 app.use(
     expressjwt({ 
-        secret: process.env.JWT_SECRET || 'default_secret', 
-        algorithms: ['HS256'], 
-    }).unless({ path: [
+      secret: process.env.JWT_SECRET || 'default_secret', 
+      algorithms: ['HS256'], 
+    }).unless({ 
+      path: [
         '/api-docs', 
         /^\/api-docs\/.*/, 
         '/user/login', 
@@ -32,11 +33,18 @@ app.use(
         '/message/ask',
         '/voiceChat/create',
         '/voiceMessage/ask',
-    ] }));
+        '/voiceChat/all/username',
+        /^\/voiceChat\/all\/messages\/.*$/, 
+        '/voiceChat/delete'
+      ]
+    })
+  );
+  
 
 app.use('/user', userRouter);
 
 app.use('/chat', chatRouter);
+
 app.use('/message', messageRouter);
 
 app.use('/voiceChat', voiceChatRouter);

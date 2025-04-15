@@ -30,10 +30,11 @@ voiceMessageRouter.post(
             }
 
             // Rename the file to have a .mp3 extension
-            const newFilePath = path.join(audioFile.destination, `${audioFile.filename}.mp3`);
+            const newFilePath = path.join(audioFile.destination, `${audioFile.filename}.webm`);
             fs.renameSync(audioFile.path, newFilePath);
 
             console.log(`audio file saved as: ${newFilePath}`);
+
 
             const result = await voiceMessageService.askVoiceMessage(
                 { prompt: newFilePath }, // Pass the new file path as the prompt
@@ -41,6 +42,7 @@ voiceMessageRouter.post(
                 { username }
             );
 
+-
             fs.unlinkSync(newFilePath);
             res.status(200).json({ response: result });
         } catch (error) {
