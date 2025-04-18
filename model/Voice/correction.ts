@@ -5,12 +5,18 @@ export class Correction {
     private id?: number;
     readonly description: string;
     readonly mistakes: Mistake[];
+    readonly isCorrectSentence: boolean;
+    readonly correctionOfEntireSentence: string;
+
     readonly createdAt: Date = new Date();
     
-    constructor(correction: { id?: number; description: string; mistakes: Mistake[] }) {
+    constructor(correction: { id?: number; description: string; isCorrectSentence: boolean; correctionOfEntireSentence: string; mistakes: Mistake[]; }) {
         this.id = correction.id;
         this.description = correction.description;
+        this.isCorrectSentence = correction.isCorrectSentence
+        this.correctionOfEntireSentence = correction.correctionOfEntireSentence;
         this.mistakes = correction.mistakes;
+
     }
 
     setId(id: number) {
@@ -37,6 +43,8 @@ export class Correction {
         return new Correction({
             id: data.id,
             description: data.description,
+            isCorrectSentence: data.isCorrectSentence,
+            correctionOfEntireSentence: data.correctionOfEntireSentence,
             mistakes: data.mistakes.map((mistake) => Mistake.from(mistake)),
         });
     }

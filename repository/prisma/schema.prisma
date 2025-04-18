@@ -59,6 +59,8 @@ model VoiceMessage {
 model Correction {
   id             Int          @id @default(autoincrement())
   description    String
+  isCorrectSentence     Boolean
+  correctionOfEntireSentence    String
   mistakes       Mistake[]    @relation("VoiceMessageCorrectionMistakes")
   voiceMessage   VoiceMessage @relation("VoiceMessageCorrection", fields: [voiceMessageId], references: [id], onDelete: Cascade)
   voiceMessageId Int

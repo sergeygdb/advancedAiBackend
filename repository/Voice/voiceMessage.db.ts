@@ -125,6 +125,7 @@ const openai = new OpenAI({
     if (!rawResponseContent) {
       throw new Error("No content received from API.");
     }
+    console.log("raw response : "+rawResponseContent)
   
     // Parse the JSON string.
     let parsedResponse;
@@ -134,7 +135,8 @@ const openai = new OpenAI({
       throw new Error("Failed to parse JSON from API response: " + err);
     }
 
-    console.log("response message", parsedResponse);
+
+    console.log("response message", parsedResponse); 
 
 
     // First, extract the followupQuestion from the parsed response.
@@ -155,7 +157,8 @@ const openai = new OpenAI({
     const correction = await database.correction.create({
         data: {
         description: parsedResponse.correction.descriptionOfAllMistakes,
-        // Connect the correction to the created VoiceMessage
+        isCorrectSentence: parsedResponse.correction.correctSentence,
+        correctionOfEntireSentence: parsedResponse.correction.correctionOfEntireSentence,
         voiceMessage: { connect: { id: voiceMessagePrisma.id } },
         },
     });
