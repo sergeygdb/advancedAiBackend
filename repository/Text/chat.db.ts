@@ -5,18 +5,20 @@ import userDb from '../user.db';
 import { Message } from '../../model/Text/message';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
+    apiKey: process.env.OPENAI_API_KEY!,
 });
 
 const maxWords = 6;
 
 const systemMessage = {
-  role: 'system',
-  content: `You are a helpful assistant who answers with only maximum ${maxWords} words. If you can't make a response with max ${maxWords} words, response with "ERROR: Response limit exceeded!".`,
+    role: 'system',
+    content: `You are a helpful assistant who answers with only maximum ${maxWords} words. If you can't make a response with max ${maxWords} words, response with "ERROR: Response limit exceeded!".`,
 };
 
-const createChat = async ({username} : {username: string}, {name} : {name? : string }): Promise<Chat> => {
-    
+const createChat = async (
+    { username }: { username: string },
+    { name }: { name?: string }
+): Promise<Chat> => {
     let user;
 
     try {
@@ -24,12 +26,11 @@ const createChat = async ({username} : {username: string}, {name} : {name? : str
         if (!user) {
             throw new Error('User not found.');
         }
-    }
-    catch (error) {
+    } catch (error) {
         console.error(error);
         throw new Error('User not found.');
     }
-    
+
     try {
         const chatPrisma = await database.chat.create({
             data: {
@@ -43,12 +44,10 @@ const createChat = async ({username} : {username: string}, {name} : {name? : str
         });
 
         return Chat.from(chatPrisma);
-    }
-    catch (error) {
+    } catch (error) {
         console.error(error);
-        throw new Error('Coudln\'t create chat for user.');
+        throw new Error("Coudln't create chat for user.");
     }
-
 };
 
 const getChatByUsername = async ({ username }: { username: string }): Promise<Chat | null> => {
@@ -83,8 +82,7 @@ const getChatById = async ({ id }: { id: number }): Promise<Chat | null> => {
         });
 
         return chatPrisma ? Chat.from(chatPrisma) : null;
-    }
-    catch (error) {
+    } catch (error) {
         console.error(error);
         throw new Error('Database error. See server log for details.');
     }
@@ -98,9 +96,31 @@ const getMessagesByChatId = async ({ chatId }: { chatId: number }): Promise<Mess
             },
         });
 
-        return messagesPrisma.map(message => Message.from(message));
+        return messagesPrisma.map((message) => Message.from(message));
+    } catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
     }
-    catch (error) {
+};
+
+const getChatsByUsername = async ({ username }: { username: string }) => {
+    try {
+        const user = await userDb.getUserByUsername({ username });
+        if (!user) {
+            throw new Error('User not found.');
+        }
+
+        const chatsPrisma = await database.chat.findMany({
+            where: {
+                userId: user.getId(),
+            },
+            include: {
+                messages: true,
+            },
+        });
+
+        return chatsPrisma.map((chat) => Chat.from(chat));
+    } catch (error) {
         console.error(error);
         throw new Error('Database error. See server log for details.');
     }
@@ -111,4 +131,5 @@ export default {
     createChat,
     getChatById,
     getMessagesByChatId,
+    getChatsByUsername,
 };

@@ -4,6 +4,7 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 
+import ffmpeg from 'fluent-ffmpeg';
 
 const voiceMessageRouter = express.Router();
 
@@ -21,7 +22,7 @@ voiceMessageRouter.post(
             }
 
             console.log(`chatId: ${chatId}`);
-            
+
             // Access the uploaded file
             const audioFile = req.file;
 
@@ -29,21 +30,38 @@ voiceMessageRouter.post(
                 return res.status(400).json({ error: 'Audio file is required.' });
             }
 
-            // Rename the file to have a .mp3 extension
-            const newFilePath = path.join(audioFile.destination, `${audioFile.filename}.webm`);
-            fs.renameSync(audioFile.path, newFilePath);
+            const webmFilePath = path.join(audioFile.destination, `${audioFile.filename}.webm`);
+            fs.renameSync(audioFile.path, webmFilePath);
 
-            console.log(`audio file saved as: ${newFilePath}`);
+            console.log(`audio file saved as: ${webmFilePath}`);
 
+            // Convert webm to mp3
+            const mp3FilePath = path.join(audioFile.destination, `${audioFile.filename}.mp3`);
+
+            // Use ffmpeg to convert webm to mp3
+            await new Promise<void>((resolve, reject) => {
+                ffmpeg(webmFilePath)
+                    .output(mp3FilePath)
+                    .on('end', () => {
+                        console.log(`Successfully converted to mp3: ${mp3FilePath}`);
+                        resolve();
+                    })
+                    .on('error', (err) => {
+                        console.error('Error converting file:', err);
+                        reject(err);
+                    })
+                    .run();
+            });
 
             const result = await voiceMessageService.askVoiceMessage(
-                { prompt: newFilePath }, // Pass the new file path as the prompt
+                { prompt: mp3FilePath }, // Pass the mp3 file path as the prompt
                 { chatId: parseInt(chatId, 10) }, // Convert chatId to a number
                 { username }
             );
 
--
-            fs.unlinkSync(newFilePath);
+            // Clean up both files when done
+            fs.unlinkSync(webmFilePath);
+            fs.unlinkSync(mp3FilePath);
             res.status(200).json({ response: result });
         } catch (error) {
             next(error);
@@ -52,4 +70,3 @@ voiceMessageRouter.post(
 );
 
 export { voiceMessageRouter };
-

@@ -25,4 +25,14 @@ userRouter.post('/login', async (req: Request, res: Response, next: NextFunction
     }
 });
 
+userRouter.post('/chats', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { username } = req.query as { username: string };
+        const response = await userService.getUserChats({ username });
+        res.status(200).json(response);
+    } catch (error) {
+        next(error);
+    }
+});
+
 export { userRouter };

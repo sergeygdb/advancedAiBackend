@@ -3,6 +3,8 @@ import { AuthenticationResponse, UserInput } from '../types';
 import { generateJwtToken } from '../util/jwt';
 import { User } from '../model/user';
 import userDb from '../repository/user.db';
+import chatService from './text/chat.service';
+import voiceChatService from './voice/voiceChat.service';
 
 const getUserByUsername = async ({ username }: { username: string }): Promise<User> => {
     const user = await userDb.getUserByUsername({ username });
@@ -28,4 +30,19 @@ const authenticate = async ({ username, password }: UserInput): Promise<Authenti
     };
 };
 
-export default { getUserByUsername, authenticate };
+const getUserChats = async ({ username }: { username: string }) => {
+    const user = await getUserByUsername({ username });
+    if (!user) {
+        throw new Error(`User with username: ${username} does not exist.`);
+    }
+
+    const voiceChats = await voiceChatService.getVoiceChatsByUsername(username);
+    const chats = await chatService.getChatsByUsername({ username });
+
+    return {
+        voiceChats,
+        chats,
+    };
+};
+
+export default { getUserByUsername, authenticate, getUserChats };

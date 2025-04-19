@@ -15,31 +15,38 @@ const app = express();
 dotenv.config();
 const port = process.env.APP_PORT || 3000;
 
-app.use(cors({ origin: 'http://localhost:8080' }));
+app.use(
+    cors({
+        origin: [
+            'http://localhost:8080',
+            'https://c1d4-91-180-30-217.ngrok-free.app',
+            'http://127.0.0.1:4040',
+        ],
+    })
+);
 app.use(bodyParser.json());
 
 app.use(
-    expressjwt({ 
-      secret: process.env.JWT_SECRET || 'default_secret', 
-      algorithms: ['HS256'], 
-    }).unless({ 
-      path: [
-        '/api-docs', 
-        /^\/api-docs\/.*/, 
-        '/user/login', 
-        '/user/register', 
-        '/status',
-        '/chat/create',
-        '/message/ask',
-        '/voiceChat/create',
-        '/voiceMessage/ask',
-        '/voiceChat/all/username',
-        /^\/voiceChat\/all\/messages\/.*$/, 
-        '/voiceChat/delete'
-      ]
+    expressjwt({
+        secret: process.env.JWT_SECRET || 'default_secret',
+        algorithms: ['HS256'],
+    }).unless({
+        path: [
+            '/api-docs',
+            /^\/api-docs\/.*/,
+            '/user/login',
+            '/user/register',
+            '/status',
+            '/chat/create',
+            '/message/ask',
+            '/voiceChat/create',
+            '/voiceMessage/ask',
+            '/voiceChat/all/username',
+            /^\/voiceChat\/all\/messages\/.*$/,
+            '/voiceChat/delete',
+        ],
     })
-  );
-  
+);
 
 app.use('/user', userRouter);
 
