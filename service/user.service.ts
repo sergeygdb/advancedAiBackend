@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { AuthenticationResponse, UserInput } from '../types';
+import { AuthenticationResponse, RegisterUser, UserInput } from '../types';
 import { generateJwtToken } from '../util/jwt';
 import { User } from '../model/user';
 import userDb from '../repository/user.db';
@@ -19,14 +19,27 @@ const authenticate = async ({ username, password }: UserInput): Promise<Authenti
         throw new Error('Username and password are required.');
     }
     const user = await getUserByUsername({ username });
+
+    if (!user) {
+        throw new Error('Incorrect username or password.');
+    }
+
     const isValidPassword = await bcrypt.compare(password, user.getPassword());
 
     if (!isValidPassword) {
         throw new Error('Incorrect username or password.');
     }
+
+    console.log({
+        token: generateJwtToken(user.getUsername(), user.getId()!.toString()),
+        username: user.getUsername(),
+        id: user.getId(),
+    });
+
     return {
-        token: generateJwtToken({ username }),
-        username: username,
+        token: generateJwtToken(user.getUsername(), user.getId()!.toString()),
+        username: user.getUsername(),
+        id: user.getId(),
     };
 };
 
@@ -45,4 +58,45 @@ const getUserChats = async ({ username }: { username: string }) => {
     };
 };
 
-export default { getUserByUsername, authenticate, getUserChats };
+const doesEmailExist = async (email: string): Promise<boolean> => {
+    const user = await userDb.getAllUsers();
+    return user.some((user) => user.getEmail() === email);
+};
+
+const doesUserExist = async (username: string): Promise<boolean> => {
+    const user = await userDb.getUserByUsername({ username });
+    return !!user;
+};
+
+const registerUser = async (user: RegisterUser): Promise<User> => {
+    if (!user) {
+        throw new Error('User is undefined');
+    }
+
+    if (await doesUserExist(user.username)) {
+        throw new Error(`User with username: ${user.username} already exists.`);
+    }
+
+    if (await doesEmailExist(user.email)) {
+        throw new Error(`User with email: ${user.email} already exists.`);
+    }
+
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const userWithHashedPassword = {
+        ...user,
+        password: hashedPassword,
+    };
+
+    const newUser = await userDb.registerUser(userWithHashedPassword);
+
+    return newUser;
+};
+
+export default {
+    getUserByUsername,
+    authenticate,
+    getUserChats,
+    doesEmailExist,
+    registerUser,
+    doesUserExist,
+};

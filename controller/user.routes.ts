@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import userService from '../service/user.service';
-import { UserInput } from '../types/index';
+import { RegisterUser, UserInput } from '../types/index';
 
 const userRouter = express.Router();
 
@@ -30,6 +30,16 @@ userRouter.post('/chats', async (req: Request, res: Response, next: NextFunction
         const { username } = req.query as { username: string };
         const response = await userService.getUserChats({ username });
         res.status(200).json(response);
+    } catch (error) {
+        next(error);
+    }
+});
+
+userRouter.post('/register', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userInput = <RegisterUser>req.body;
+        const response = await userService.registerUser(userInput);
+        res.status(200).json({ message: 'Registration successful', ...response });
     } catch (error) {
         next(error);
     }

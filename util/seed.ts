@@ -11,9 +11,11 @@ const main = async () => {
     await prisma.voiceMessage.deleteMany();
     await prisma.voiceChat.deleteMany();
     await prisma.user.deleteMany();
-    
+    await prisma.flashcard.deleteMany();
+
     const admin = await prisma.user.create({
         data: {
+            id: 1,
             username: 'admin',
             password: await bcrypt.hash('admin', 12),
             firstName: 'admin',
@@ -21,13 +23,13 @@ const main = async () => {
             email: 'administration@ucll.be',
         },
     });
-    
+
     const chat1 = await prisma.chat.create({
         data: {
             name: 'chat1',
             user: {
                 connect: {
-                    id: admin.id, 
+                    id: admin.id,
                 },
             },
         },
@@ -38,7 +40,7 @@ const main = async () => {
             name: 'voiceChat1',
             user: {
                 connect: {
-                    id: admin.id, 
+                    id: admin.id,
                 },
             },
         },
@@ -47,12 +49,29 @@ const main = async () => {
     // Corrected VoiceMessage creation
     const voiceMessage1 = await prisma.voiceMessage.create({
         data: {
-            prompt: "Je suis un étudiant.",
-            content: "true",
+            prompt: 'Je suis un étudiant.',
+            content: 'true',
             chatId: voiceChat1.id, // Directly assign chatId as a number
         },
     });
-    
+
+    const flashCard1 = await prisma.flashcard.create({
+        data: {
+            question: 'What is the capital of France?',
+            answer: 'Paris',
+            topic: 'Geography',
+            userId: admin.id,
+        },
+    });
+
+    const flashCard2 = await prisma.flashcard.create({
+        data: {
+            question: 'What is the capital of Germany?',
+            answer: 'Berlin',
+            topic: 'Geography',
+            userId: admin.id,
+        },
+    });
 };
 
 (async () => {

@@ -10,20 +10,28 @@ import { messageRouter } from './controller/message.routes';
 import { expressjwt } from 'express-jwt';
 import { voiceChatRouter } from './controller/voiceChat.routes';
 import { voiceMessageRouter } from './controller/voiceMessage.routes';
+import flashCardRouter from './controller/flashCard.route';
 
 const app = express();
 dotenv.config();
 const port = process.env.APP_PORT || 3000;
 
+// app.use(
+//     cors({
+//         origin: [
+//             'http://localhost:8080',
+//             'https://fb76-91-180-30-217.ngrok-free.app',
+//             'http://127.0.0.1:4040',
+//         ],
+//     })
+// );
+// use no cors
 app.use(
     cors({
-        origin: [
-            'http://localhost:8080',
-            'https://c1d4-91-180-30-217.ngrok-free.app',
-            'http://127.0.0.1:4040',
-        ],
+        origin: '*',
     })
 );
+
 app.use(bodyParser.json());
 
 app.use(
@@ -56,6 +64,8 @@ app.use('/message', messageRouter);
 
 app.use('/voiceChat', voiceChatRouter);
 app.use('/voiceMessage', voiceMessageRouter);
+
+app.use('/flashcards', flashCardRouter);
 
 app.get('/status', (req, res) => {
     res.json({ message: 'Duolingo-ish API is running...' });
