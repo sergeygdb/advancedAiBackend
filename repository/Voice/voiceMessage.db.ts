@@ -50,27 +50,15 @@ const openai = new OpenAI({
   const askVoiceMessage = async (audio: any, voiceChatId: number): Promise<any> => {
     let chatHistory: any[] = [];
     chatHistory.push(systemMessage);
-    
-    // Transcribe the audio with true attempt at correction
-    const audioStreamCorrect = fs.createReadStream(audio);
-    const transcriptionCorrect = await openai.audio.transcriptions.create({
-      model: 'gpt-4o-mini-transcribe',
-      file: audioStreamCorrect,
-      prompt: "Transcribe the recording as accurately as possible, correcting any errors in spelling, grammar, punctuation, and what the user is trying to say."
-    });
   
-    if (!transcriptionCorrect) {
-      throw new Error('Transcription not found.');
-    }
-
-    console.log("transcriptionCorrect :", transcriptionCorrect.text);
     
     // Transcribe the audio.
     const audioStream = fs.createReadStream(audio);
     const transcription = await openai.audio.transcriptions.create({
       model: 'gpt-4o-mini-transcribe',
       file: audioStream,
-      prompt: `Transcrit chaque mot et erreur exactement comme ils sont prononcés, sans corrections ni ajustements. Merci de capturer chaque détail parlé fidèlement. Exemple : Je vois une chat. Nous pensons que l'utilisateur dit ${transcriptionCorrect.text}`
+      language: 'fr',
+      prompt: `Transcrit chaque mot et erreur exactement comme ils sont prononcés, sans corrections ni ajustements. Merci de capturer chaque détail parlé fidèlement. Exemple : Je vois une chat.`
     });
   
     if (!transcription) {
@@ -113,7 +101,8 @@ const openai = new OpenAI({
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: chatHistoryFiltered,
-    });
+    }); 
+    //here add a chat that would just correct the previously transcribe and then pass it to the chat that would make a json
   
     if (!response) {
       throw new Error('Response not found.');

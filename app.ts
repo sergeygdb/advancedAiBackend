@@ -11,6 +11,8 @@ import { expressjwt } from 'express-jwt';
 import { voiceChatRouter } from './controller/voiceChat.routes';
 import { voiceMessageRouter } from './controller/voiceMessage.routes';
 import flashCardRouter from './controller/flashCard.route';
+import {evaluateTextRouter} from './controller/evaluateText.routes';
+
 
 const app = express();
 dotenv.config();
@@ -52,6 +54,7 @@ app.use(
             '/voiceChat/all/username',
             /^\/voiceChat\/all\/messages\/.*$/,
             '/voiceChat/delete',
+            '/evaluate/english'
         ],
     })
 );
@@ -66,6 +69,9 @@ app.use('/voiceChat', voiceChatRouter);
 app.use('/voiceMessage', voiceMessageRouter);
 
 app.use('/flashcards', flashCardRouter);
+
+app.use('/evaluate', evaluateTextRouter);
+
 
 app.get('/status', (req, res) => {
     res.json({ message: 'Duolingo-ish API is running...' });
