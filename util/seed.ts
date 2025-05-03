@@ -24,36 +24,12 @@ const main = async () => {
         },
     });
 
-    const chat1 = await prisma.chat.create({
-        data: {
-            name: 'chat1',
-            user: {
-                connect: {
-                    id: admin.id,
-                },
-            },
-        },
-    });
 
-    const voiceChat1 = await prisma.voiceChat.create({
-        data: {
-            name: 'voiceChat1',
-            user: {
-                connect: {
-                    id: admin.id,
-                },
-            },
-        },
-    });
+    
+
+
 
     // Corrected VoiceMessage creation
-    const voiceMessage1 = await prisma.voiceMessage.create({
-        data: {
-            prompt: 'Je suis un étudiant.',
-            content: 'true',
-            chatId: voiceChat1.id, // Directly assign chatId as a number
-        },
-    });
 
     const flashCard1 = await prisma.flashcard.create({
         data: {

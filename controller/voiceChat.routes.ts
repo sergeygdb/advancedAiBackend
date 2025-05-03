@@ -6,8 +6,8 @@ const voiceChatRouter = express.Router();
 voiceChatRouter.post('/create',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { username, name } = req.body;
-            const result = await voiceChatService.createVoiceChat({ username }, { name });
+            const { username, name, language } = req.body;
+            const result = await voiceChatService.createVoiceChat({ username }, { name }, {language});
             res.status(200).json({ response: result });
         } catch (error) {
             next(error);

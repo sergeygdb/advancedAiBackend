@@ -17,7 +17,7 @@ const systemMessage = {
   content: `You are a helpful assistant who answers with only maximum ${maxWords} words. If you can't make a response with max ${maxWords} words, response with "ERROR: Response limit exceeded!".`,
 };
 
-const createVoiceChat = async ({username} : {username: string}, {name} : {name? : string }): Promise<VoiceChat> => {
+const createVoiceChat = async ({username} : {username: string}, {name} : {name? : string }, {language} : {language : string }): Promise<VoiceChat> => {
     
     let user;
 
@@ -41,6 +41,7 @@ const createVoiceChat = async ({username} : {username: string}, {name} : {name? 
                         id: user.getId(),
                     },
                 },
+                language: language
             },
         });
 
@@ -134,10 +135,25 @@ const getVoiceMessagesByVoiceChatId = async (chatid: number): Promise<VoiceMessa
     }
 };
 
+const getLanguageById = async (id: number): Promise<string | null> => {
+    try {
+      const voiceChat = await database.voiceChat.findUnique({
+        where: { id },
+        select: { language: true },
+      });
+  
+      return voiceChat?.language ?? null;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Database error. Could not retrieve language.');
+    }
+  };
+
 export default {
     createVoiceChat,
     getVoiceChatsByUsername,
     getVoiceChatById,
     getVoiceMessagesByVoiceChatId,
-    deleteVoiceMessagesByVoiceChatId
+    deleteVoiceMessagesByVoiceChatId,
+    getLanguageById
 };

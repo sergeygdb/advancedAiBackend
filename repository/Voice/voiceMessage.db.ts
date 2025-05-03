@@ -12,7 +12,7 @@ const openai = new OpenAI({
   
   const maxWords = 6;
   
-  const systemMessage = {
+  const systemMessageFrench = {
     role: 'system',
     content: `You are a language assistant specialized in French grammar. Your task is to analyze a sentence provided by the user and identify any grammatical errors, including but not limited to errors in gender agreement, article usage, spelling, and syntax.
   Never forget about what the conversation is about, for example. Only ever actively grade and repond to the latest message from the user in the message context.
@@ -34,7 +34,7 @@ const openai = new OpenAI({
                 },
             {
                 problematicWord: "l'esthétiste", // "je lis des tests, j'aime pas trop." mistook "lis des tests" for "l'esthétiste"
-                explanation: "Started a new conversation. If this is a msitake, retry" //Keep explanation short like this in case of broken subject!
+                explanation: "Started a new conversation. If this is a mistake, retry" //Keep explanation short like this in case of broken subject!
                 brokeSubject: true
             }
             // Include an entry for each detected mistake
@@ -45,20 +45,113 @@ const openai = new OpenAI({
   Important: Even if the sentence appears superficially correct, check all details. For instance, if the user says "Je vois une chatte." but the intended meaning is to refer to a male cat, you must mark it as incorrect by setting "correctSentence" to false, provide the corrected sentence (e.g., "Je vois un chat."), and include an explanation about the error in gender agreement.
   `
   };
+
+  const systemMessageEnglish = {
+    role: 'system',
+    content: `You are a language assistant specialized in English grammar. Your task is to analyze a sentence provided by the user and identify any grammatical errors, including but not limited to errors in gender agreement, article usage, spelling, and syntax.
+  Never forget about what the conversation is about, for example. Only ever actively grade and repond to the latest message from the user in the message context.
+
+  In your response, return a JSON object (as response.choices[0].message.content) that strictly follows this format:
+  
+  {
+    userSentence: {the exact sentence provided by the user},
+    followupQuestion: {a relevant follow-up question in English to continue the conversation},
+    correction: {
+        correctSentence: true or false,  // false if any error is detected
+        descriptionOfAllMistakes: {a short description of the mistake types (e.g., "gender agreement", "spelling", "punctuation")},
+        correctionOfEntireSentence: {if errors were found, provide the fully corrected sentence; if the sentence is correct, leave empty},
+        mistakesMade: [
+            {
+              problematicWord: "a apple", // English grammar mistake
+              explanation: "Use 'an' before words that start with a vowel sound, like 'an apple'.",
+              brokeSubject: false // if user has responded with a sentence that is correct but not relevant to the conversation, set this to true, consider it a mistake
+            },
+            {
+                problematicWord: "",
+                explanation: "Started a new conversation. If this is a mistake, retry" //Keep explanation short like this in case of broken subject!
+                brokeSubject: true
+            }
+            // Include an entry for each detected mistake
+        ]
+    }
+  }
+  
+  Important: Even if the sentence appears superficially correct, check all details. For instance, if the user says "Je vois une chatte." but the intended meaning is to refer to a male cat, you must mark it as incorrect by setting "correctSentence" to false, provide the corrected sentence (e.g., "Je vois un chat."), and include an explanation about the error in gender agreement.
+  `
+  };
+
+  const systemMessageDutch = {
+    role: 'system',
+    content: `You are a language assistant specialized in Dutch grammar. Your task is to analyze a sentence provided by the user and identify any grammatical errors, including but not limited to errors in gender agreement, article usage, spelling, and syntax.
+  Never forget about what the conversation is about, for example. Only ever actively grade and repond to the latest message from the user in the message context.
+
+  In your response, return a JSON object (as response.choices[0].message.content) that strictly follows this format:
+  
+  {
+    userSentence: {the exact sentence provided by the user},
+    followupQuestion: {a relevant follow-up question in Dutch to continue the conversation},
+    correction: {
+        correctSentence: true or false,  // false if any error is detected
+        descriptionOfAllMistakes: {a short description of the mistake types (e.g., "gender agreement", "spelling", "punctuation")},
+        correctionOfEntireSentence: {if errors were found, provide the fully corrected sentence; if the sentence is correct, leave empty},
+        mistakesMade: [
+            {
+                problematicWord: "heeft" // the word or phrase that contains the mistake,
+                explanation: "Use 'heb' met 'ik': 'Ik heb een boek', not 'Ik heeft'."  // for each mistake, provide a detailed explanation
+                brokeSubject: false // if user has responded with a sentence that is correct but not relevant to the conversation, set this to true, consider it a mistake
+                },
+            {
+                problematicWord: "",
+                explanation: "Started a new conversation. If this is a mistake, retry" //Keep explanation short like this in case of broken subject!
+                brokeSubject: true
+            }
+            // Include an entry for each detected mistake
+        ]
+    }
+  }
+  
+  Important: Even if the sentence appears superficially correct, check all details. For instance, if the user says "Je vois une chatte." but the intended meaning is to refer to a male cat, you must mark it as incorrect by setting "correctSentence" to false, provide the corrected sentence (e.g., "Je vois un chat."), and include an explanation about the error in gender agreement.
+  `
+  };
+
   
   
   const askVoiceMessage = async (audio: any, voiceChatId: number): Promise<any> => {
+
+    let language: string | null = await voiceChatDb.getLanguageById(voiceChatId)
+
+    console.log("language of the conversation  :"+language)
+  
+    let languageArgumentTranscription: string = '';
+    let systemMessage
+    let transcriptionPrompt: string = '';
+
+
+    if (language==='French'){
+      languageArgumentTranscription='fr';
+      transcriptionPrompt='Transcrit chaque mot et erreur exactement comme ils sont prononcés, sans corrections ni ajustements. Merci de capturer chaque détail parlé fidèlement. Exemple : Je vois une chat.';
+      systemMessage=systemMessageFrench;
+    }
+    else if (language==='Dutch'){
+      languageArgumentTranscription='nl';
+      transcriptionPrompt='Transcribeer elk woord en elke fout precies zoals ze uitgesproken worden, zonder correcties of aanpassingen. Gelieve elk gesproken detail getrouw vast te leggen. Voorbeeld: Ik zie kat.';
+      systemMessage=systemMessageDutch;
+    }
+    else if (language==='English'){
+      languageArgumentTranscription='en';
+      transcriptionPrompt='Transcribe every word and error exactly as they are spoken, without corrections or adjustments. Please capture every spoken detail faithfully. Example: I see cat.';
+      systemMessage=systemMessageEnglish;
+    }
+    
     let chatHistory: any[] = [];
     chatHistory.push(systemMessage);
-  
-    
     // Transcribe the audio.
     const audioStream = fs.createReadStream(audio);
     const transcription = await openai.audio.transcriptions.create({
       model: 'gpt-4o-mini-transcribe',
       file: audioStream,
-      language: 'fr',
-      prompt: `Transcrit chaque mot et erreur exactement comme ils sont prononcés, sans corrections ni ajustements. Merci de capturer chaque détail parlé fidèlement. Exemple : Je vois une chat.`
+      language: languageArgumentTranscription,
+      prompt: transcriptionPrompt
     });
   
     if (!transcription) {
@@ -170,11 +263,21 @@ const openai = new OpenAI({
 }
 
 // we can also add a language option for the very first question
-const createFirstMessage = async ( voiceChatId: number): Promise<any> => {
+const createFirstMessage = async ( voiceChatId: number, language: string): Promise<any> => {
+  let firstSentence = "";
+  if (language==="French"){
+    firstSentence="De quoi voulez-vous parler ?"
+  } 
+  else if  (language==="English"){
+    firstSentence= "What would you like to talk about?"
+  }
+  else if  (language==="Dutch"){
+    firstSentence= "Waarover wilt u praten?"
+  }
   await database.voiceMessage.create({
     data: {
         prompt: '',
-        content: "De quoi voulez-vous parler ?", // saving the follow-up question from the parsed response
+        content: firstSentence, // saving the follow-up question from the parsed response
         chat: voiceChatId ? { connect: { id: voiceChatId } } : undefined,
     },
     });

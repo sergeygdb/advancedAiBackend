@@ -45,6 +45,7 @@ model VoiceChat {
   userId    Int?
   messages  VoiceMessage[] @relation("VoiceChatMessages")
   createdAt DateTime       @default(now())
+  language  String
 }
 
 model VoiceMessage {

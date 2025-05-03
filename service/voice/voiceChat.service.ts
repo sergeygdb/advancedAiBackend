@@ -5,15 +5,15 @@ import messageDb from '../../repository/Voice/voiceMessage.db';
 import voiceChatDb from '../../repository/Voice/voiceChat.db';
 import { VoiceChat } from '../../model/Voice/voicechat';
 
-const createVoiceChat = async ({username} : {username : string}, {name} : {name? : string}) => {
+const createVoiceChat = async ({username} : {username : string}, {name} : {name? : string}, {language} : {language : string}) => {
   try {
-    const chat = await voiceChatDb.createVoiceChat({username}, {name});
+    const chat = await voiceChatDb.createVoiceChat({username}, {name}, {language});
 
     if (!chat) {
       throw new Error('Couldn\'t create chat.');
     }
 
-    messageDb.createFirstMessage(chat.getId() as number)
+    messageDb.createFirstMessage(chat.getId() as number, language as string)
 
     return chat;
 
