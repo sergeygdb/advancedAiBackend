@@ -11,7 +11,8 @@ const openai = new OpenAI({
   });
   
   const maxWords = 6;
-  
+
+  // system message in french
   const systemMessageFrench = {
     role: 'system',
     content: `You are a language assistant specialized in French grammar. Your task is to analyze a sentence provided by the user and identify any grammatical errors, including but not limited to errors in gender agreement, article usage, spelling, and syntax.
@@ -46,6 +47,7 @@ const openai = new OpenAI({
   `
   };
 
+  // system message in english
   const systemMessageEnglish = {
     role: 'system',
     content: `You are a language assistant specialized in English grammar. Your task is to analyze a sentence provided by the user and identify any grammatical errors, including but not limited to errors in gender agreement, article usage, spelling, and syntax.
@@ -80,6 +82,7 @@ const openai = new OpenAI({
   `
   };
 
+  // system message in dutch
   const systemMessageDutch = {
     role: 'system',
     content: `You are a language assistant specialized in Dutch grammar. Your task is to analyze a sentence provided by the user and identify any grammatical errors, including but not limited to errors in gender agreement, article usage, spelling, and syntax.
@@ -129,16 +132,19 @@ const openai = new OpenAI({
 
     if (language==='French'){
       languageArgumentTranscription='fr';
+    // system message for prompt message for French
       transcriptionPrompt='Transcrit chaque mot et erreur exactement comme ils sont prononcés, sans corrections ni ajustements. Merci de capturer chaque détail parlé fidèlement. Exemple : Je vois une chat.';
       systemMessage=systemMessageFrench;
     }
     else if (language==='Dutch'){
       languageArgumentTranscription='nl';
+    // system message for prompt message for Dutch
       transcriptionPrompt='Transcribeer elk woord en elke fout precies zoals ze uitgesproken worden, zonder correcties of aanpassingen. Gelieve elk gesproken detail getrouw vast te leggen. Voorbeeld: Ik zie kat.';
       systemMessage=systemMessageDutch;
     }
     else if (language==='English'){
       languageArgumentTranscription='en';
+    // system message for prompt message for English
       transcriptionPrompt='Transcribe every word and error exactly as they are spoken, without corrections or adjustments. Please capture every spoken detail faithfully. Example: I see cat.';
       systemMessage=systemMessageEnglish;
     }
