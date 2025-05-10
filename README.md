@@ -22,18 +22,16 @@ JWT_SECRET="2154f4f52194f158c308f668a64a6f4a7f43f3f5ccc5cfeef6ff30fda34fa82"
 JWT_EXPIRES_HOURS=8
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/fullstack?schema=public"
 APP_PORT=3000
-OPENAI_API_KEY=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
+OPENAI_API_KEY=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
 ```
 
-Replace the connection details with the ones from your server.
-You can replace the JWT secret with any random, long string.
 
 
 ## Starting the application
 
 Run the following commands in a terminal (project root folder) to get the application up and running.
 
-Install all required node dependencies:
+Install all required node dependencies (it can take a few minutes):
 
 ```console
 $ npm install
