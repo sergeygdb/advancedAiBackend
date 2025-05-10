@@ -18,24 +18,16 @@ Dotenv is a module to externalize configuration, for instance database connectio
 To get this demo up and running, you'll need to create a **.env** file in you root project directory (on the same level as .gitignore). The contents should look like this:
 
 ```properties
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/courses?schema=public"
-APP_PORT=3000
-JWT_SECRET="d2ViNC1ub3Qtc28tc2VjcmV0LWFjY2Vzcy1zZWNyZXQ="
+JWT_SECRET="2154f4f52194f158c308f668a64a6f4a7f43f3f5ccc5cfeef6ff30fda34fa82"  
 JWT_EXPIRES_HOURS=8
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/fullstack?schema=public"
+APP_PORT=3000
+OPENAI_API_KEY=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
 ```
 
 Replace the connection details with the ones from your server.
 You can replace the JWT secret with any random, long string.
 
-### VSCode
-
-Recommended extensions:
-
--   Prettier - Code formatter
--   Auto Rename Tag
--   GitLens - Git supercharged
-
-Open the settings of VSCode, search for **Format on save** and make sure it's checked. This assures that every time you save a file, it's being formatted according to the code style rules described in **.prettier.rc**.
 
 ## Starting the application
 
@@ -53,18 +45,11 @@ The first time running this application, you will have to run the database migra
 $ npx prisma migrate dev
 ```
 
-**Note:** You will need to execute this every time the prisma schema is changed.
 
-When making changes to the prisma schema, you will also have to re-generate the prisma client:
-
-```console
-$ npx prisma generate
-```
-
-Optionally, you can execute the seed script to fill the database with test data:
+Execute the seed script to fill the database with test data:
 
 ```console
-$ npx ts-node seed.ts
+$ npx ts-node util/seed.ts
 ```
 
 To start the Node.js server execute:
@@ -74,6 +59,3 @@ $ npm start
 ```
 
 This will start an express server on <http://localhost:3000>.
-You can test if everything works by requesting <http://localhost:3000/status> or <http://localhost:3000/counters> from a browser or a tool like Postman.
-
-You can access the API documentation and test it via Swagger running on <http://localhost:3000/api-docs>.
