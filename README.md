@@ -22,7 +22,7 @@ JWT_SECRET="2154f4f52194f158c308f668a64a6f4a7f43f3f5ccc5cfeef6ff30fda34fa82"
 JWT_EXPIRES_HOURS=8
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/fullstack?schema=public"
 APP_PORT=3000
-OPENAI_API_KEY=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
+OPENAI_API_KEY=YOUR_OPENAI_TOKEN
 ```
 
 
